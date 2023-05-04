@@ -8,7 +8,7 @@ import Login from './components/Login';
 import Register from './components/Signup';
 import { ToastContainer } from 'react-toastify';
 import Product from './components/product';
-
+import ProductDetails from './components/ProductDetails';
 //import { AuthProvider } from './context/auth';
 //import API from './api';
 const Message = ({ message }) => {
@@ -37,7 +37,7 @@ const App = () => {
         <Route exact path="/register" element={<Register />} />
         <Route exact path="/message" element={<Message message={message} />} />
         <Route exact path="/product" element={<Product />} />
-
+        <Route exact path="/product/:id" element={<ProductDetails />} />
       </Routes>
       <ToastContainer />
     </>
