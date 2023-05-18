@@ -20,12 +20,19 @@ exports.adminLogin = catchAsyncErrors(async (req, res, next) => {
 
   // Check if user exists and password is correct
   if (!user || !(await user.comparePassword(password)) || user.role !== 'admin') {
-    return next(new ErrorHandler('YOU DONOT HAVE ADMIN PRIVILEDGES', 402));
+    return next(new ErrorHandler('You are not authorized to access this resource. Please log in as an admin.', 401));
   }
 
   // Generate JWT token
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
+  });
+
+  // Set cookie in response
+  res.cookie('token', token, {
+    expires: new Date(Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
   });
 
   res.status(200).json({
@@ -34,6 +41,7 @@ exports.adminLogin = catchAsyncErrors(async (req, res, next) => {
     token,
   });
 });
+
 //Admin Logout
 exports.adminLogout = (req, res) => {
   res.clearCookie('token');
@@ -43,7 +51,7 @@ exports.adminLogout = (req, res) => {
   });
 };
 // Define controller methods
-exports.getAllUsers = async (req, res) => {
+/*exports.getAllUsers = async (req, res) => {
     try {
       const user = await User.find();
       res.json(user);
@@ -69,8 +77,8 @@ exports.getAllProducts = async (req, res) => {
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
-  };
-exports.getProductById = async (req, res) => {
+  };*/
+/*exports.getProductById = async (req, res) => {
     try {
       const product = await Product.findById(req.params.id);
       if (!product) {
@@ -80,8 +88,8 @@ exports.getProductById = async (req, res) => {
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
-  };
-exports.createProduct = async (req, res) => {
+  };*/
+/*exports.createProduct = async (req, res) => {
     try{
         const{ name, description, price, quantity, image, shipping} = req.body;
         const product = new Product({ name, description, price, quantity, image, shipping });
@@ -121,7 +129,25 @@ exports.deleteProduct = async (req, res) => {
       } catch (err) {
         res.status(500).json({ message: err.message });
       }
-};
+};*/
+exports.getAdminProfile = catchAsyncErrors(async (req, res, next) => {
+  try {
+    // Retrieve the admin's information based on the authenticated user's role
+    const admin = await User.findOne({ _id: req.user._id, role: 'admin' });
 
-// Export admin controller
-//module.exports = adminController;
+    if (!admin) {
+      return next(new ErrorHandler('Admin profile not found', 404));
+    }
+
+    res.status(200).json({
+      success: true,
+      admin,
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+
+
