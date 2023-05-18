@@ -31,7 +31,7 @@ const addToCart = async (req, res) => {
       product: req.body.product,
       quantity: desiredQuantity,
       price: price,
-      user: userId 
+      user: userId // Set the user ID to the user ID from the URL
     });
 
     const cartData = await cart_obj.save();
@@ -53,4 +53,37 @@ const getCartItems = async (req, res) => {
     res.status(400).send({ success: false, msg: error.message });
   }
 }
-module.exports = { addToCart, getCartItems };
+const removeCartItem = async (req, res) => {
+  try {
+    const cartItemId = req.params.cartItemId;
+
+    // Find the cart item by ID
+    const cartItem = await Cart.findById(cartItemId);
+
+    if (!cartItem) {
+      return res.status(400).send({ success: false, msg: "Cart item not found" });
+    }
+
+    // Find the corresponding product
+    const product = await Product.findById(cartItem.product);
+
+    if (!product) {
+      return res.status(400).send({ success: false, msg: "Product not found" });
+    }
+
+    // Increase the product quantity by the cart item quantity
+    product.quantity += cartItem.quantity;
+
+    // Update the product quantity in the Product collection
+    await product.save();
+
+    // Remove the cart item from the Cart collection
+    await cartItem.remove();
+
+    res.status(200).send({ success: true, msg: "Cart item removed successfully" });
+  } catch (error) {
+    res.status(400).send({ success: false, msg: error.message });
+  }
+};
+
+module.exports = { addToCart, getCartItems, removeCartItem };
