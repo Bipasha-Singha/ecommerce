@@ -12,11 +12,16 @@ app.use(express.json());
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000', // Replace with your frontend URL
+    credentials: true, 
+}));
 app.use(cookieParser());
 //route imports
 const product =  require("./routes/productRoute")
 app.use('/api/v1',product);
+const  categoryRoutes = require("./routes/categoryRoutes");
+app.use('/api/v1', categoryRoutes);
 const userRoutes = require('./routes/userroutes');
 app.use('/api/v1', userRoutes);
 const adminRoutes = require('./routes/adminroutes');
@@ -25,6 +30,8 @@ const orderRoutes = require('./routes/orderroutes');
 app.use('/api/v1', orderRoutes);
 const cartRoutes = require('./routes/cartroutes');
 app.use('/api/v1', cartRoutes);
+const PaymentRoutes = require('./routes/payment');
+app.use('/api/v1',PaymentRoutes);
 module.exports= app;
 //Middleware for eror
 app.use(errorMiddleware);
