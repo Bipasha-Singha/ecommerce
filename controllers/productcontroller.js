@@ -17,6 +17,9 @@ exports.createProduct = async (req, res) => {
     try {
       const { name, description, price, category, quantity, shipping } = fields;
       const product = new productmodel({ name, description, price, category, quantity, shipping });
+      if (shipping) {
+        product.shipping = shipping;
+      }
       if (files.image) {
         const image = files.image;
         const imageData = fs.readFileSync(image.path);
