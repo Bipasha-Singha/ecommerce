@@ -17,15 +17,16 @@ exports.getAllUsers = async(req, res)=>{
 exports.getUserById = async(req, res)=>{
     try{
         const users = await User.findById(req.params.id);
-        if(!user){
+        if(!users){
             return res.status(404).json({message:"User doesnot exist"});
         }
         else
-            res.json(user);
+            res.json(users);
     }catch(err){
         res.status(500).json({message: err.message});
     }
 };
+
 //register user
 exports.registeruser = async (req, res, next) => {
   const { name, email, password, profile, phone, address, role} = req.body;
@@ -88,6 +89,7 @@ exports.registeruser = async (req, res, next) => {
     next(error);
   }
 };
+
 
 //login
 exports.loginuser = catchAsyncErrors (async (req, res, next)=>{
